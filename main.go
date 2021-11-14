@@ -1,8 +1,8 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
 )
 
 var (
@@ -16,8 +16,11 @@ type Item struct {
 }
 
 func main() {
-	delimiters := []rune(os.Args[1])
-	original := os.Args[2]
+	version1 := flag.Bool("v", false, "no zero length words")
+	flag.Parse()
+
+	delimiters := []rune(flag.Arg(0))
+	original := flag.Arg(1)
 
 	var items []*Item
 	isDelimiter := make(map[rune]bool)
@@ -30,7 +33,7 @@ func main() {
 
 	for _, r := range original {
 		if isDelimiter[r] {
-			if len(current) > 0 {
+			if !*version1 || len(current) > 0 {
 				newItem := &Item{
 					typ:      word,
 					contents: string(current),
@@ -47,7 +50,7 @@ func main() {
 		}
 		current = append(current, r)
 	}
-	if len(current) > 0 {
+	if !*version1 || len(current) > 0 {
 		newItem := &Item{
 			typ:      word,
 			contents: string(current),
