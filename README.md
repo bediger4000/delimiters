@@ -35,24 +35,24 @@ When the decreasing index is less than the increasing index it stops.
 
 ```sh
 $ go build .
-$ ./delimiters '/:' 'hello/world:here'
+$ ./delimiters -v '/:' 'hello/world:here'
 Original:
 hello/world:here
 Words reversed:
 here/world:hello
-$ ./delimiters ':/' "hello/world:here/"
+$ ./delimiters -v ':/' "hello/world:here/"
 Original:
 hello/world:here/
 Words reversed:
 here/world:hello/
-$ ./delimiters ':/' "hello//world:here"
+$ ./delimiters -v ':/' "hello//world:here"
 Original:
 hello//world:here/
 Words reversed:
 here//world:hello/
 ```
 Does this solution work for the following cases:
-"hello/world:here/", "hello//world:here"
+"hello/world:here/", "hello//world:here"?
 
 I see what they're getting at: does the solution code
 put a zero-length word between '/' and '/'
@@ -62,9 +62,33 @@ My solution does not.
 "hello//world:here" should arguably transform to "here/world/hello:"
 
 What should "here/world/hello:"  transform to?
-My code transforms it to "hello/world/here:", because it does not assume
-a zero-length word after the final ':' delimiter.
+My version 1 code transforms it to "hello/world/here:",
+which is not the original string.
+
+I modified my code to find zero-length words between delimiters.
+
+```
+$ ./delimiters :/ hello//world:here
+Original:
+hello//world:here
+Words reversed:
+here/world/:hello
+$ ./delimiters ':/' here/world/:hello
+Original:
+here/world/:hello
+Words reversed:
+hello//world:here
+```
+
+Version 2 algorithm allows the program to transform input strings,
+re-transform that output back into the original string.
+
+My version 1 code does not assume a zero-length word after the final ':' delimiter.
 The follow-up case of "hello/world:here/" should prompt exactly that discussion.
+
+By default my code finds zero-length words between consecutive delimiter characters,
+and also after any final delimiter.
+Run with a "-v" flag, it does not find zero-length words anywhere.
 
 ## Interview Analysis
 
@@ -78,5 +102,5 @@ for good practices, and why they wrote the pieces they did.
 
 "[Hard]" seems unreasonable for this as a programming problem.
 The "follow-on" test cases reveal what the posers of this problem wanted:
-discussion, probably about pitfalls of informal requirements,
+discussion about pitfalls of informal requirements,
 but possibly also about the limits of invertable transformations or some such.
